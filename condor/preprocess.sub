@@ -1,0 +1,26 @@
+# preprocess.sub - Preprocessing CPU job on HTCondor
+universe     = docker
+docker_image = ahlamloum/karmadock-seminar:v1
+
+executable   = scripts/run_preprocessing.sh
+arguments    = proto_test 4
+
+# File transfer configuration
+# (Note: Remove trailing slash from scripts/ to transfer the directory itself)
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files = DLDockingBenchSeminar/data/prototype_model_data/proto_test, DLDockingBenchSeminar/data/prototype_model_data/proto_test.csv, scripts
+transfer_output_files = graphs
+
+# Logging
+output = logs/preprocess.$(ClusterId).$(ProcId).out
+error  = logs/preprocess.$(ClusterId).$(ProcId).err
+log    = logs/preprocess.$(ClusterId).log
+
+# Resource requests
+request_cpus   = 4
+request_memory = 8GB
+
+requirements = UidDomain == "cs.uni-saarland.de"
+
+queue 1
