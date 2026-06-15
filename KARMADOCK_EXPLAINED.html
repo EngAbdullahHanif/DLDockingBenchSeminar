@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KarmaDock Seminar — Code &amp; Theory Explained (team002)</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161922; --panel2:#1b1f2a; --ink:#e7eaf0; --muted:#9aa3b2;
+    --line:#262b37; --accent:#5b9cff; --accent2:#46d1a2; --warn:#ffb454; --code:#0b0d12;
+    --maxw:880px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .layout{display:flex;gap:0;align-items:flex-start}
+  /* sidebar */
+  nav{position:sticky;top:0;height:100vh;min-width:268px;max-width:268px;overflow-y:auto;
+    background:var(--panel);border-right:1px solid var(--line);padding:22px 16px 60px}
+  nav h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:18px 8px 8px}
+  nav a{display:block;color:var(--muted);padding:6px 10px;border-radius:8px;font-size:14px;border-left:2px solid transparent}
+  nav a:hover{background:var(--panel2);color:var(--ink);text-decoration:none}
+  nav a.active{color:var(--ink);background:var(--panel2);border-left:2px solid var(--accent)}
+  nav .brand{font-weight:700;font-size:16px;color:var(--ink);padding:0 8px 6px}
+  nav .brand small{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-top:3px}
+  /* content */
+  main{flex:1;min-width:0;display:flex;justify-content:center;padding:40px 28px 120px}
+  .doc{width:100%;max-width:var(--maxw)}
+  h1{font-size:30px;line-height:1.2;margin:0 0 6px}
+  .sub{color:var(--muted);margin:0 0 26px;font-size:15px}
+  h2.sec{font-size:23px;margin:46px 0 8px;padding-top:14px;border-top:1px solid var(--line)}
+  h3{font-size:17px;margin:26px 0 6px;color:#cdd6e6}
+  p{margin:10px 0}
+  code{background:var(--code);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px;
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;color:#cfe3ff}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow:auto;
+    font-size:13px;line-height:1.55;font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace}
+  pre code{background:none;border:0;padding:0;color:#d6deea}
+  .tag{color:var(--accent2)} .kw{color:#ff9ecb} .cm{color:#6f7787;font-style:italic} .st{color:#f7c97e}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:14px 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  .pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;
+    padding:2px 10px;font-size:12px;color:var(--muted);margin:0 4px 4px 0}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--panel2);color:#cdd6e6}
+  .note{border-left:3px solid var(--accent);background:var(--panel);padding:10px 16px;border-radius:0 10px 10px 0;margin:14px 0}
+  .tip{border-left:3px solid var(--accent2)}
+  .warn{border-left:3px solid var(--warn)}
+  .step{display:flex;gap:12px;align-items:flex-start;margin:10px 0}
+  .step .n{flex:0 0 28px;height:28px;border-radius:50%;background:var(--accent);color:#06203f;font-weight:700;
+    display:flex;align-items:center;justify-content:center;font-size:14px}
+  .lex{font-size:14px}
+  .lex dt{color:var(--accent2);font-family:ui-monospace,monospace;margin-top:12px;font-weight:600}
+  .lex dd{margin:2px 0 0;color:#cdd6e6}
+  .qa{margin:12px 0}
+  .qa .q{font-weight:600;color:#cfe3ff}
+  .qa .a{color:#c4ccda;margin:4px 0 0}
+  hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .foot{color:var(--muted);font-size:13px;margin-top:40px}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0;font-size:13px}
+  .flow .box{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+  .flow .arr{color:var(--accent)}
+  .kbd{font-family:ui-monospace,monospace;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:12px}
+  /* ---- light theme + toggle (added) ---- */
+  [data-theme="light"]{
+    --bg:#f6f8fb; --panel:#ffffff; --panel2:#eef1f6; --ink:#1b212b; --muted:#5b6675;
+    --line:#dce1ea; --accent:#2563eb; --accent2:#0c9b6e; --warn:#b46a05; --code:#f0f3f8;
+  }
+  [data-theme="light"] code{color:#0b4ea2}
+  [data-theme="light"] pre code{color:#2b3340}
+  [data-theme="light"] .kw{color:#c2185b}
+  [data-theme="light"] .st{color:#b15c00}
+  [data-theme="light"] .cm{color:#737d8c}
+  [data-theme="light"] h3{color:#2b3340}
+  [data-theme="light"] th{color:#2b3340}
+  [data-theme="light"] .lex dd{color:#2b3340}
+  [data-theme="light"] .qa .q{color:#0b4ea2}
+  [data-theme="light"] .qa .a{color:#3a4250}
+  [data-theme="light"] nav a.active{color:#1b212b}
+  #themeToggle{position:fixed;top:14px;right:16px;z-index:60;width:40px;height:40px;border-radius:999px;
+    background:var(--panel2);color:var(--ink);border:1px solid var(--line);font-size:18px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;line-height:1}
+  #themeToggle:hover{border-color:var(--accent)}
+</style>
+</head>
+<body>
+<button id="themeToggle" aria-label="Toggle light/dark theme" title="Toggle light/dark">🌙</button>
+<div class="layout">
+<nav id="toc">
+  <div class="brand">KarmaDock — Explained
+    <small>BDLDT seminar · team002 · KarmaDock</small>
+  </div>
+  <h2>Flagged</h2>
+  <a href="#ahmed">★ Ahmed's Questions</a>
+  <h2>Start here</h2>
+  <a href="#intro">1. What is this project?</a>
+  <a href="#bigpicture">2. The big picture</a>
+  <a href="#formats">3. File formats glossary</a>
+  <h2>Theory (the paper)</h2>
+  <a href="#paper">4. KarmaDock paper in plain words</a>
+  <a href="#losses">5. The two losses</a>
+  <a href="#twostage">6. The two-stage training</a>
+  <h2>The code</h2>
+  <a href="#pipeline">7. The pipeline, end to end</a>
+  <a href="#trainpy">8. train.py — deep dive</a>
+  <a href="#wrappers">9. The wrapper scripts</a>
+  <a href="#convert">10. The converters</a>
+  <a href="#allpipe">11. The one-submit driver</a>
+  <h2>Wrap-up</h2>
+  <a href="#connect">12. Theory ↔ practice map</a>
+  <a href="#tutor">13. If the tutor asks…</a>
+  <a href="#refs">14. References &amp; links</a>
+</nav>
+
+<main><div class="doc">
+
+<h1>KarmaDock: the code &amp; the theory, explained for beginners</h1>
+<p class="sub">A friendly walkthrough of what we built for the seminar, line-by-line, and how every piece connects back to the KarmaDock paper. Written so you can open the code in front of the tutor and explain it confidently.</p>
+
+<div class="note tip">
+  <b>How to read this.</b> Sections 1–3 give you the vocabulary (what the project is, what each file type means). Sections 4–6 are the theory from the paper. Sections 7–11 walk through our actual code. Section 12 connects theory to code in one table, and Section 13 is a cheat-sheet for explaining it out loud.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="ahmed">★ Ahmed's Questions <span class="pill" style="background:var(--accent);color:#06203f;border-color:var(--accent)">flagged</span></h2>
+<p class="sub">How the pipeline prepares the results, runs validation &amp; PoseBusters, and guarantees the poses are ranked best-first. Every claim below was checked against the live cluster artifacts (<code>~/run/work/kd_out</code>, <code>~/run/results</code>) on 2026-06-14.</p>
+
+<h3>How the predicted poses are produced</h3>
+<p><code>run_infer.sh</code> runs KarmaDock's <code>ligand_docking.py</code> with <code>--docking --scoring --correct --random_seed 2023</code>, docking each complex <b>3 times</b> (3 random ligand starts = "repeats"). Each repeat yields one pose plus a confidence <b>MDN score</b>. KarmaDock writes, per repeat <code>re ∈ {0,1,2}</code>:</p>
+<pre><code><span class="cm"># the score table — one row per complex</span>
+kd_out/&lt;re&gt;.csv   columns: pdb_id, score, RMSD, FF_RMSD, Aligned_RMSD
+<span class="cm"># the pose, in three correction variants</span>
+kd_out/&lt;re&gt;/&lt;id&gt;_pred_{uncorrected|ff_corrected|align_corrected}.sdf</code></pre>
+
+<h3>How we guarantee "ranked best-first" <span class="pill">the key answer</span></h3>
+<p>Higher MDN score = better pose. Verified on the real cluster CSV (<code>kd_out/p1_baseline/proto_test/0.csv</code>):</p>
+<pre><code>pdb_id,score,RMSD,FF_RMSD,Aligned_RMSD
+5s7b_LU8_A_501,<span class="st">68.25</span>,1.95,1.87,2.82   <span class="cm"># high score → low RMSD (good)</span>
+5s7d_LU8_A_508,<span class="st">13.36</span>,9.13,9.23,9.71   <span class="cm"># low score  → high RMSD (bad)</span></code></pre>
+<p><code>convert_karmadock_to_seminar.py</code> collects the 3 repeat-scores per complex, sorts them <b>descending by MDN score</b>, then writes the poses into one multi-conformer <code>&lt;id&gt;_pred.sdf</code> in that order — best pose first:</p>
+<pre><code><span class="cm"># convert_karmadock_to_seminar.py (lines 58–59)</span>
+ranked = sorted(scores[cid], key=<span class="kw">lambda</span> x: x[<span class="st">"score"</span>], reverse=<span class="kw">True</span>)  <span class="cm"># higher MDN score first</span></code></pre>
+<p>Verified output (<code>results/p1_baseline/proto_test/3ix2_AC2_A_302_pred.sdf</code>): <b>3 poses</b>, each tagged <code>KarmaDock_Score / KarmaDock_Repeat / KarmaDock_Mode</code>. This satisfies the tutor's spec — <code>results/README.md</code>: <i>"Poses should be ordered by confidence/score (best pose first)."</i></p>
+<div class="note warn"><b>Why it matters.</b> The evaluator scores the <i>top</i> pose. If the file weren't sorted best-first, a genuinely good prediction would be read as bad. This one sort is the correctness hinge of the whole results step.</div>
+
+<h3>How validation / RMSD evaluation works</h3>
+<table>
+  <tr><th>Layer</th><th>What it computes</th><th>Where</th></tr>
+  <tr><td><b>Official</b> (tutor's)</td><td><b>symmetry-corrected</b> RMSD &lt;2 Å / &lt;1 Å success + PoseBusters, run on whatever poses we ship</td><td><code>evaluation/evaluation.py --dataset proto_test</code></td></tr>
+  <tr><td><b>Ours</b> (in-house)</td><td>best-of-3-repeats RMSD &lt;2 Å success, ECDF curves, top-10 lowest-RMSD tables (from the kd_out CSVs)</td><td><code>notebooks/results_and_comparison.ipynb</code></td></tr>
+</table>
+<div class="note warn"><b>Gap to know:</b> the tutor's <code>evaluation.py</code> is <b>not in our repo and not on the cluster</b> (searched <code>~</code> — absent; the cluster clone sits on <code>main</code> with only <code>data/ README.md results/</code>). So the <i>authoritative</i> numbers come from the tutor running their script on our <code>_pred.sdf</code> — our job is to provide correctly-ranked poses, not to run the official evaluator.</div>
+
+<h3>How PoseBusters is prepared</h3>
+<p>Notebook <b>§3e</b> runs PoseBusters directly on the exported (already-ranked) poses:</p>
+<pre><code><span class="kw">from</span> posebusters <span class="kw">import</span> PoseBusters
+buster = PoseBusters(config=<span class="st">'redock'</span>)   <span class="cm"># predicted pose vs crystal ligand vs protein</span></code></pre>
+<p>It checks the <b>top pose</b> of each complex and reports <b>PB-Valid</b> = fraction passing all physical checks (P1 13.3% / P3 6.7% / P2 0%, dominated by protein-clash failures). PoseBusters' own <code>rmsd ≤ 2 Å</code> and the <code>*_loaded</code> I/O checks are reported <i>separately</i>, not folded into PB-Valid.</p>
+
+<div class="note"><b>Two more caveats to carry into the review.</b>
+<ul>
+<li><b>Submitted variant:</b> <code>run_infer.sh</code> exports <code>--mode align_corrected</code>, but we ship <b>uncorrected</b> (best on proto_test) — confirm the files in <code>results/proto_test/</code> carry <code>KarmaDock_Mode = uncorrected</code>.</li>
+<li><b>Two different RMSDs:</b> PoseBusters' symmetry-corrected RMSD ≠ KarmaDock's internal RMSD; the tutor's official number uses symmetry-corrected, so it may differ from the notebook's figures.</li>
+<li><code>results/README.md</code> lists three datasets (<code>proto_test</code>, <code>posebusters_filtered</code>, <code>full_test</code>) — only <code>proto_test</code> is in scope for the prototype.</li>
+</ul>
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="intro">1. What is this project?</h2>
+<p>
+The seminar (<i>Benchmarking DL-based Docking Tools</i>, Saarland University) gives each team one
+deep-learning <b>docking</b> tool. Our tool is <b>KarmaDock</b>. <b>Docking</b> means: given a protein
+(a big biological molecule, like a lock) and a small <b>ligand</b> (a drug-like molecule, like a key),
+predict <i>how</i> and <i>where</i> the ligand fits into the protein's pocket — its 3D <b>pose</b>.
+</p>
+<p>Our job has three parts:</p>
+<div class="step"><div class="n">1</div><div><b>Run the tool</b> (inference) on a shared dataset and measure how good its predicted poses are.</div></div>
+<div class="step"><div class="n">2</div><div><b>Re-train the tool</b> ourselves on the seminar's data — to compare a from-scratch model and a fine-tuned model against the released one.</div></div>
+<div class="step"><div class="n">3</div><div><b>Analyze &amp; present</b> the results, comparing them to the numbers in the original paper.</div></div>
+<p>
+The twist: KarmaDock's public code <b>only ships the part that runs a trained model</b> (inference) plus
+the pretrained weights. It does <b>not</b> include a training script. So the heart of our contribution is
+<code>train.py</code> — a training loop we wrote ourselves around KarmaDock's model. That is the file the
+tutor is most likely to ask about, and most of this page builds up to explaining it.
+</p>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="bigpicture">2. The big picture</h2>
+<p>Three "pipelines" all share the same plumbing; they differ only in <i>which weights</i> the model uses:</p>
+<table>
+  <tr><th>Pipeline</th><th>Where the weights come from</th><th>Question it answers</th></tr>
+  <tr><td><b>P1 — baseline</b></td><td>the authors' released weights (<code>karmadock_screening.pkl</code>)</td><td>How good is KarmaDock "out of the box"?</td></tr>
+  <tr><td><b>P2 — from scratch</b></td><td>random start, trained only on seminar data</td><td>Can we reproduce its training from zero?</td></tr>
+  <tr><td><b>P3 — fine-tune</b></td><td>released weights, then trained a bit more on seminar data</td><td>Does extra training on this data help?</td></tr>
+</table>
+<p>The flow is the same for all three:</p>
+<div class="flow">
+  <span class="box">raw protein + ligand files</span><span class="arr">→</span>
+  <span class="box">preprocess (build graphs)</span><span class="arr">→</span>
+  <span class="box">train <span class="cm">(P2/P3 only)</span></span><span class="arr">→</span>
+  <span class="box">dock (inference)</span><span class="arr">→</span>
+  <span class="box">predicted poses</span><span class="arr">→</span>
+  <span class="box">evaluate (RMSD)</span>
+</div>
+<p>We run everything on the university HPC <b>cluster</b> using <b>HTCondor</b> (a job scheduler) inside a
+<b>Docker</b> container (a frozen, reproducible software environment). More on those file types next.</p>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="formats">3. File formats glossary</h2>
+<p>Every file type you will see in the project, what it holds, and why it exists:</p>
+<dl class="lex">
+  <dt>.pdb  <span class="pill">input · protein</span></dt>
+  <dd><b>Protein structure.</b> A plain-text file listing every atom of the protein and its 3D coordinates (x, y, z), plus which amino-acid and chain it belongs to. Comes from the Protein Data Bank. Example: <code>3ix2_AC2_A_302_protein_refined.pdb</code>.</dd>
+
+  <dt>.sdf  <span class="pill">input/output · ligand</span></dt>
+  <dd><b>Small molecule structure.</b> Lists the ligand's atoms, their 3D coordinates, and the bonds between them. A single <code>.sdf</code> can hold several poses ("conformers") of the same molecule stacked together. The crystal (true) ligand is <code>&lt;id&gt;_ligand_refined.sdf</code>; our prediction is <code>&lt;id&gt;_pred.sdf</code>.</dd>
+
+  <dt>.csv  <span class="pill">index</span></dt>
+  <dd><b>The dataset index.</b> A spreadsheet (comma-separated) with one row per complex, naming its ligand file, protein file, the measured binding affinity, year, and PDB id. Example columns: <code>ligand_file_name, protein_file_name, Year, Log Binding Affinity, …</code>. Our code reads this to know which complexes exist.</dd>
+
+  <dt>.dgl  <span class="pill">preprocessed · graph</span></dt>
+  <dd><b>The graph the model actually eats.</b> KarmaDock turns each protein+ligand into a <i>graph</i> (atoms = nodes, bonds/contacts = edges) and saves it with the DGL library. One file per complex: <code>3ix2_AC2_A_302.dgl</code>. Building these is the slow "preprocessing" step; afterwards training/inference just loads them.</dd>
+
+  <dt>.pkl  <span class="pill">model weights</span></dt>
+  <dd><b>A trained model checkpoint</b> ("pickle"). Holds the millions of learned numbers (weights) of the network. <code>karmadock_screening.pkl</code> = the authors' weights; <code>karmadock_team002.pkl</code> = our best trained weights.</dd>
+
+  <dt>last.pt  <span class="pill">resume file</span></dt>
+  <dd><b>A full training snapshot</b> (PyTorch). Unlike the <code>.pkl</code> (best weights only), this also stores the optimizer state, current epoch, and best score — so a job killed mid-training can <b>resume</b> exactly where it stopped.</dd>
+
+  <dt>train_log.csv  <span class="pill">training history</span></dt>
+  <dd><b>One row per epoch</b> of training: epoch number, train loss, validation loss, etc. This is what the notebook plots as "training curves".</dd>
+
+  <dt>.py  <span class="pill">python code</span></dt>
+  <dd><b>Python programs.</b> <code>train.py</code> (our trainer), the converters, the adapters. The real logic lives here.</dd>
+
+  <dt>.sh  <span class="pill">bash wrapper</span></dt>
+  <dd><b>Shell scripts</b> — short "recipe" files that call the Python programs with the right arguments in the right order (e.g. <code>preprocess.sh</code>, <code>run_infer.sh</code>). They save you from typing long commands by hand.</dd>
+
+  <dt>.sub  <span class="pill">cluster job</span></dt>
+  <dd><b>HTCondor submit files.</b> They tell the cluster <i>what</i> to run (which <code>.sh</code>), with how many CPUs/GPUs/memory, which Docker image, and where to write logs. You "submit" one with <code>condor_submit file.sub</code>.</dd>
+
+  <dt>.ipynb  <span class="pill">notebook</span></dt>
+  <dd><b>Jupyter notebook</b> — code + text + plots in one document. Our results and data-exploration analyses live here.</dd>
+
+  <dt>Dockerfile  <span class="pill">environment recipe</span></dt>
+  <dd><b>The build recipe</b> for the Docker image — it installs Python, PyTorch, RDKit, KarmaDock, and copies our scripts in, so every cluster run uses the exact same software.</dd>
+
+  <dt>.out / .err / .log  <span class="pill">run records</span></dt>
+  <dd>Produced by every cluster job: <code>.out</code> = normal printout, <code>.err</code> = errors/warnings, <code>.log</code> = HTCondor's own record (when it started, where it ran).</dd>
+</dl>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="paper">4. The KarmaDock paper, in plain words</h2>
+<div class="card">
+  <b>Paper:</b> Zhang, Zhang, Shen, … Hou.
+  <i>“Efficient and accurate large library ligand docking with KarmaDock.”</i>
+  <b>Nature Computational Science</b> 3, 789–804 (2023).<br>
+  <b>DOI:</b> <a href="https://doi.org/10.1038/s43588-023-00511-5" target="_blank">10.1038/s43588-023-00511-5</a> ·
+  <b>Code:</b> <a href="https://github.com/schrojunzhang/KarmaDock" target="_blank">github.com/schrojunzhang/KarmaDock</a>
+</div>
+<p>
+Traditional docking programs (AutoDock Vina, Glide, GOLD) <b>search</b> over millions of possible ligand
+positions and <b>score</b> each with a hand-made formula. That is accurate-ish but slow. KarmaDock replaces
+the search with a neural network that <b>moves the ligand straight into place</b>, making it about
+<b>~100–1000× faster</b> — fast enough to screen huge compound libraries.
+</p>
+<p>The paper describes a <b>three-part model</b> (quoting the abstract, simplified):</p>
+<table>
+  <tr><th>Part</th><th>What it does</th><th>Beginner analogy</th></tr>
+  <tr><td><b>1. Encoders</b></td><td>Read the protein and the ligand and turn each into a numeric "understanding" of its shape and chemistry (graph neural networks).</td><td>Reading the lock and the key and memorizing their features.</td></tr>
+  <tr><td><b>2. E(n)-equivariant GNN</b> (with self-attention)</td><td>Iteratively <b>moves the ligand's atoms</b> to dock it into the pocket, using protein–ligand and internal interactions; then a post-processing step fixes the geometry so it is chemically sensible.</td><td>Gently rotating &amp; sliding the key until it sits in the lock, then straightening any bent teeth.</td></tr>
+  <tr><td><b>3. Mixture Density Network (MDN)</b></td><td>Predicts a <b>binding score</b> — how strongly the ligand sticks — from the predicted distances between atoms.</td><td>Judging how well the key actually turns the lock.</td></tr>
+</table>
+<p>
+"<b>E(n)-equivariant</b>" is the clever bit: if you rotate or move the whole protein in space, the network's
+predicted pose rotates/moves with it instead of breaking. That is exactly the property docking needs, and it
+is why the model can learn geometry efficiently.
+</p>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="losses">5. The two losses (this is the key to train.py)</h2>
+<p>
+To <b>train</b> any neural network you need a <b>loss</b>: a single number saying "how wrong are you right now?".
+Training nudges the weights to make that number smaller. KarmaDock has <b>two</b> jobs, so it has <b>two losses</b>:
+</p>
+<div class="grid">
+  <div class="card"><b>① Pose loss — <span class="tag">rmsd_loss</span></b><br>
+  How far the predicted ligand atoms are from their true (crystal) positions. Small = the pose is in the right place. This trains <b>Part 2</b> (the docking GNN).</div>
+  <div class="card"><b>② Scoring loss — <span class="tag">mdn_loss</span></b><br>
+  How badly the MDN's predicted distance distribution matches reality. Small = the binding score is trustworthy. This trains <b>Parts 1 &amp; 3</b> (encoders + MDN).</div>
+</div>
+<p>The total loss is just a weighted sum, controlled by one knob called <code>pos_r</code> ("position ratio"):</p>
+<pre><code><span class="cm"># straight from KarmaDock's own model.forward()</span>
+rmsd_loss, mdn_loss = model(data, device, pos_r)
+loss = pos_r * rmsd_loss + mdn_loss</code></pre>
+<p>This one line is the whole reason we could write a trainer without the authors' training code: <b>the model
+already returns both losses itself</b>. Our job was to build the loop <i>around</i> it. The <code>pos_r</code>
+knob is also how we switch between the two training stages (next section):</p>
+<ul>
+  <li><code>pos_r = 0</code> → ignore the pose loss → <b>only train scoring</b>.</li>
+  <li><code>pos_r = 1</code> → use both → <b>train docking + scoring together</b>.</li>
+</ul>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="twostage">6. The two-stage training protocol</h2>
+<p>
+The paper (Methods, "Training protocol") trains in <b>two stages</b>, and our P2 from-scratch pipeline copies
+this exactly:
+</p>
+<div class="step"><div class="n">1</div><div><b>Stage 1 — scoring only</b> (<code>pos_r = 0</code>). First teach the encoders + MDN to <i>understand</i> chemistry and judge binding, without yet worrying about moving atoms. Learning rate <code>1e-3</code>, a little weight-decay (<code>1e-5</code>).</div></div>
+<div class="step"><div class="n">2</div><div><b>Stage 2 — docking + scoring</b> (<code>pos_r = 1</code>). Now <i>also</i> learn to move the ligand into place, starting from Stage-1's best weights. Smaller learning rate <code>1e-4</code>, no weight-decay.</div></div>
+<p>
+Why two stages? If you ask the model to dock <i>and</i> score from random weights at once, both signals are
+noisy and it learns slowly. Warming up the "understanding" first makes the harder docking step much more stable.
+</p>
+<div class="note">
+  <b>Fine-tuning (P3) is just "Stage 2 on its own."</b> Because the released weights already know chemistry,
+  we skip Stage 1 and do a single <code>pos_r = 1</code> run starting from <code>karmadock_screening.pkl</code>,
+  with a shorter patience so it doesn't overfit.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="pipeline">7. The pipeline, end to end</h2>
+<p>Here is what physically happens, and which file does each step:</p>
+<table>
+  <tr><th>Step</th><th>Script</th><th>In → Out</th></tr>
+  <tr><td>Convert layout</td><td><code>convert_seminar_to_karmadock.py</code></td><td>seminar <code>.sdf/.pdb</code> → KarmaDock's folder layout</td></tr>
+  <tr><td>Make pockets + graphs</td><td><code>preprocess.sh</code> → KarmaDock's <code>pre_processing.py</code> + <code>generate_graph.py</code></td><td>structures → <code>.dgl</code> graphs</td></tr>
+  <tr><td>Train (P2/P3)</td><td><b><code>train.py</code></b> (via <code>run_train_paper.sh</code> / <code>run_finetune.sh</code>)</td><td><code>.dgl</code> graphs → <code>karmadock_team002.pkl</code></td></tr>
+  <tr><td>Dock (inference)</td><td><code>run_infer.sh</code> → KarmaDock's <code>ligand_docking.py</code></td><td>graphs + weights → predicted poses + scores</td></tr>
+  <tr><td>Export poses</td><td><code>convert_karmadock_to_seminar.py</code></td><td>KarmaDock output → <code>&lt;id&gt;_pred.sdf</code></td></tr>
+  <tr><td>Evaluate</td><td>tutor's <code>evaluation.py</code> + our notebooks</td><td>poses → RMSD success rate</td></tr>
+</table>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="trainpy">8. <code>train.py</code> — the deep dive</h2>
+<p>
+This is our main artifact (~460 lines). Below it is broken into the blocks it is actually made of, in order,
+each explained in plain English. The file lives at <code>scripts/train.py</code>.
+</p>
+
+<h3>8.1 The header &amp; the core idea (lines 1–25)</h3>
+<p>The docstring states the whole trick: KarmaDock ships no trainer, but its <code>model(...)</code> returns the
+two losses, so we wrap them in a loop. It also names the two modes — <code>--init_model ""</code> (from scratch)
+vs <code>--init_model karmadock_screening.pkl</code> (fine-tune).</p>
+
+<h3>8.2 Imports (lines 27–44)</h3>
+<pre><code><span class="kw">import</span> torch, torch.nn, torch.distributed <span class="cm"># the deep-learning engine + multi-GPU</span>
+<span class="kw">from</span> utils.fns <span class="kw">import</span> set_random_seed, Early_stopper, karmadock_evaluation
+<span class="kw">from</span> dataset.graph_obj <span class="kw">import</span> PDBBindGraphDataset      <span class="cm"># loads .dgl graphs</span>
+<span class="kw">from</span> dataset.dataloader_obj <span class="kw">import</span> PassNoneDataLoader   <span class="cm"># batches them, skips broken ones</span>
+<span class="kw">from</span> architecture.KarmaDock_architecture <span class="kw">import</span> KarmaDock   <span class="cm"># the model itself</span></code></pre>
+<p>We <b>reuse the authors' own classes</b> (model, dataset, dataloader, helper functions) — we did not rewrite
+the model. We only add the training loop. That is an honest, important point for the tutor.</p>
+
+<h3>8.3 Multi-GPU helpers (lines 63–80)</h3>
+<p>These let one training run spread across several GPUs (DDP = <i>DistributedDataParallel</i>). They are
+<b>opt-in</b>: with a normal <code>python3 train.py</code> they do nothing, so single-GPU results stay identical.</p>
+<ul>
+  <li><code>ddp_info()</code> — detects whether we were launched in multi-GPU mode.</li>
+  <li><code>shard(ids, rank, world)</code> — splits the complex list so each GPU trains on a different slice (<code>ids[rank::world]</code>).</li>
+  <li><code>all_reduce_sum(...)</code> — adds up numbers across all GPUs so they agree on the validation score.</li>
+</ul>
+
+<h3>8.4 The settings — <code>parse_args()</code> (lines 83–129)</h3>
+<p>Every knob you can turn from the command line. The important ones:</p>
+<table>
+  <tr><th>Argument</th><th>Meaning</th></tr>
+  <tr><td><code>--csv</code>, <code>--graph_dir</code></td><td>which complexes to train on, and where their <code>.dgl</code> graphs are</td></tr>
+  <tr><td><code>--init_model</code></td><td>empty = from scratch; a <code>.pkl</code> = fine-tune from those weights</td></tr>
+  <tr><td><code>--pos_r</code></td><td>the loss knob from §5 (0 = scoring only, 1 = docking+scoring)</td></tr>
+  <tr><td><code>--lr</code>, <code>--weight_decay</code></td><td>how fast / how regularized the learning is</td></tr>
+  <tr><td><code>--batch_size</code>, <code>--accum_steps</code></td><td>effective batch = batch_size × accum_steps (paper uses 64)</td></tr>
+  <tr><td><code>--patience</code></td><td>stop if validation hasn't improved for this many epochs (early stopping)</td></tr>
+  <tr><td><code>--val_csv</code></td><td>use a <i>separate</i> validation set (needed for the leak-proof LP-PDBBind split)</td></tr>
+  <tr><td><code>--resume</code></td><td>continue from <code>last.pt</code> if a cluster job was interrupted</td></tr>
+</table>
+
+<h3>8.5 Reading the dataset (lines 132–169)</h3>
+<p><code>complex_ids_from_csv()</code> turns each row of the CSV into a complex id by stripping the filename suffix
+(<code>3ix2_AC2_A_302_ligand_refined.sdf</code> → <code>3ix2_AC2_A_302</code>). Then <code>split_available()</code>
+keeps only ids that actually have a <code>.dgl</code> graph (some drop out when RDKit can't read the molecule) and
+splits them into train/validation <b>deterministically</b> (same random seed → same split every time, so results
+are reproducible).</p>
+
+<h3>8.6 Gradient accumulation, explained (lines 200–213 &amp; 354–383)</h3>
+<p>
+The paper trains with an <b>effective batch of 64</b> complexes, but 64 graphs at once don't fit in GPU memory.
+The trick: process a small batch (e.g. 4), compute gradients but <b>don't update yet</b>, repeat 16 times adding
+the gradients up, <i>then</i> update once. 4 × 16 = 64 — same result as a batch of 64, but it fits.
+</p>
+<pre><code><span class="kw">for</span> data <span class="kw">in</span> train_loader:
+    rmsd_loss, mdn_loss = model(data, device, args.pos_r)   <span class="cm"># forward</span>
+    loss = args.pos_r * rmsd_loss + mdn_loss                <span class="cm"># §5 total loss</span>
+    (loss / args.accum_steps).backward()                    <span class="cm"># add to gradient</span>
+    <span class="kw">if</span> accum % args.accum_steps == 0:                       <span class="cm"># every 16 mini-batches…</span>
+        nn.utils.clip_grad_norm_(model.parameters(), 10.0)  <span class="cm"># cap huge gradients</span>
+        optimizer.step(); optimizer.zero_grad()             <span class="cm"># …update the weights once</span></code></pre>
+<p><code>clip_grad_norm_</code> caps the gradient size so one weird complex can't blow up training.</p>
+
+<h3>8.7 The training loop (lines 350–411)</h3>
+<p>For each <b>epoch</b> (one pass over all training complexes):</p>
+<div class="step"><div class="n">1</div><div>Set the model to "train" mode and loop over batches, doing the forward → loss → backward → (accumulate) → step shown above.</div></div>
+<div class="step"><div class="n">2</div><div><b>Validate:</b> run the model on the held-out validation complexes <i>without</i> learning, and average the loss. This is the honest "how good are we?" number.</div></div>
+<div class="step"><div class="n">3</div><div><b>Log</b> one line to <code>train_log.csv</code> and (if enabled) to Weights &amp; Biases for live curves.</div></div>
+
+<h3>8.8 Checkpoints &amp; early stopping (lines 413–441)</h3>
+<p>After each epoch the code:</p>
+<ul>
+  <li>saves <code>last.pt</code> (full snapshot, for resuming),</li>
+  <li>if the validation loss is the best so far, also saves <code>karmadock_team002.pkl</code> (our deliverable),</li>
+  <li>if validation hasn't improved for <code>--patience</code> epochs, <b>stops early</b> — no point overfitting.</li>
+</ul>
+<p>This is why a multi-day cluster run survives interruptions: it always has a recent <code>last.pt</code> to
+resume from, and <code>--resume</code> picks it up automatically.</p>
+
+<h3>8.9 Weights &amp; Biases run identity (lines 237–275)</h3>
+<p>
+W&amp;B is an online dashboard for training curves. The careful part here is giving each run a <b>unique id</b>
+(<code>name_timestamp_pid</code>) saved to <code>wandb_run_id.txt</code>, so a re-submitted job creates a <i>new</i>
+record instead of silently overwriting an old one — a bug we hit and fixed (earlier the id was a hash of the
+output folder, which collided when a folder was reused).
+</p>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="wrappers">9. The wrapper scripts (the <code>.sh</code> files)</h2>
+<p>These are short recipes that call the Python programs with the paper's exact settings, so a cluster job is one clean command.</p>
+
+<h3>preprocess.sh</h3>
+<pre><code>convert_seminar_to_karmadock.py   <span class="cm"># 1. seminar files → KarmaDock folder layout</span>
+pre_processing.py                 <span class="cm"># 2. cut the 12 Å pocket around the ligand (prody)</span>
+generate_graph.py                 <span class="cm"># 3. build the .dgl graph per complex</span></code></pre>
+<p>Turns raw <code>.sdf/.pdb</code> into the <code>.dgl</code> graphs the model needs. CPU-only, run once per dataset.</p>
+
+<h3>run_train_paper.sh — Pipeline 2 (from scratch)</h3>
+<p>Runs <code>train.py</code> <b>twice</b>, implementing the two-stage protocol from §6:</p>
+<pre><code><span class="cm"># Stage 1: scoring only</span>
+train.py --init_model "" --pos_r 0 --lr 1e-3 --weight_decay 1e-5 --patience 70 …
+<span class="cm"># Stage 2: docking+scoring, starting from Stage-1's best</span>
+train.py --init_model stage1/karmadock_team002.pkl --pos_r 1 --lr 1e-4 --weight_decay 0 --patience 70 …</code></pre>
+<p>A <code>stage.done</code> marker stops Stage 1 from re-running if the whole job restarts.</p>
+
+<h3>run_finetune.sh — Pipeline 3 (fine-tune)</h3>
+<p>A single Stage-2-style run starting from the released weights:</p>
+<pre><code>train.py --init_model …/karmadock_screening.pkl --pos_r 1 --lr 1e-4 --weight_decay 0 --patience 30 …</code></pre>
+<p>Shorter patience (30 vs 70) because a pretrained model on a small dataset converges fast and could overfit.</p>
+
+<h3>run_infer.sh — docking / inference</h3>
+<pre><code>ligand_docking.py --docking True --scoring True --correct True --batch_size 64 --random_seed 2023
+convert_karmadock_to_seminar.py   <span class="cm"># export the predicted poses</span></code></pre>
+<p>Uses KarmaDock's own docking code with a model file (released or ours), then exports the poses. <code>--correct True</code> turns on the paper's post-processing (force-field / alignment) so the geometry is chemically clean.</p>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="convert">10. The converters (format glue)</h2>
+<p>KarmaDock and the seminar name their files differently, so two small adapters translate between them.</p>
+
+<h3>convert_seminar_to_karmadock.py</h3>
+<p>Seminar layout (flat folder, <code>&lt;id&gt;_ligand_refined.sdf</code>) → KarmaDock layout (one folder per complex,
+<code>&lt;id&gt;/&lt;id&gt;_ligand.sdf</code>). It just reads the CSV and copies files into the right shape.</p>
+
+<h3>convert_karmadock_to_seminar.py</h3>
+<p>KarmaDock docks each complex <b>3 times</b> (3 random starts = "repeats") and writes a score per repeat. This
+script <b>ranks the repeats by MDN score</b> (higher = better) and writes them into one <code>&lt;id&gt;_pred.sdf</code>
+<b>best pose first</b>, because the evaluator scores the top pose. It can export three pose variants:</p>
+<table>
+  <tr><th><code>--mode</code></th><th>Meaning</th></tr>
+  <tr><td><code>uncorrected</code></td><td>the raw network pose (best on our data → our submission)</td></tr>
+  <tr><td><code>ff_corrected</code></td><td>force-field cleaned (most physically realistic, per the paper)</td></tr>
+  <tr><td><code>align_corrected</code></td><td>alignment-corrected variant</td></tr>
+</table>
+<div class="note warn">
+  <b>Why best-pose-first matters.</b> The tutor's evaluator looks at the <i>top</i> pose. If the file isn't sorted
+  best-first, a good prediction can look bad. This sorting is a small but important correctness detail.
+</div>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="allpipe">11. The one-submit driver — <code>run_all_pipelines.sh</code></h2>
+<p>
+For the full-data round we built a single job that does <b>everything</b> for a dataset, so when new data arrives
+we change one line (the dataset name) and submit once. It chains: preprocess → P1 → (if a train set exists) P2 →
+P3 → inference for each, then promotes the headline poses to the path the evaluator expects.
+</p>
+<pre><code>condor_submit all_pipelines.sub        <span class="cm"># DATASET = proto  (the only line you edit)</span></code></pre>
+<p>It is <b>idempotent</b>: re-running skips finished steps (existing graphs / existing poses) and resumes training,
+so an interrupted job continues instead of starting over.</p>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="connect">12. Theory ↔ practice map</h2>
+<p>One table that links each paper idea to the exact place it lives in our code:</p>
+<table>
+  <tr><th>Paper concept</th><th>Where it is in our code</th></tr>
+  <tr><td>Encoders + EGNN + MDN (the 3-part model)</td><td>KarmaDock's <code>architecture/KarmaDock_architecture.py</code> — imported, unchanged</td></tr>
+  <tr><td>Pose loss + scoring loss</td><td><code>loss = pos_r*rmsd_loss + mdn_loss</code> in <code>train.py</code> §8.6</td></tr>
+  <tr><td>Two-stage training protocol</td><td><code>run_train_paper.sh</code> (Stage 1 <code>pos_r 0</code> → Stage 2 <code>pos_r 1</code>)</td></tr>
+  <tr><td>Effective batch = 64</td><td><code>--batch_size 4 --accum_steps 16</code> (gradient accumulation)</td></tr>
+  <tr><td>Pose post-processing (FF / align)</td><td><code>ligand_docking.py --correct True</code> in <code>run_infer.sh</code></td></tr>
+  <tr><td>RMSD &lt; 2 Å success metric</td><td>our notebooks + the tutor's <code>evaluation.py</code></td></tr>
+  <tr><td>12 Å binding pocket</td><td><code>pre_processing.py</code> inside <code>preprocess.sh</code></td></tr>
+</table>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="tutor">13. If the tutor asks… (talking points)</h2>
+<div class="qa"><div class="q">“Where did your training script come from — did you write it?”</div>
+<div class="a">Yes. KarmaDock ships inference + weights only, no trainer. We wrote <code>train.py</code> as a loop around the authors' model, which already returns both losses (<code>rmsd_loss</code>, <code>mdn_loss</code>). We did not modify the model itself — we reuse their classes.</div></div>
+
+<div class="qa"><div class="q">“What is <code>pos_r</code> and why does it change between runs?”</div>
+<div class="a">It's the weight on the pose loss. <code>pos_r=0</code> trains scoring only (Stage 1); <code>pos_r=1</code> trains docking + scoring (Stage 2). It's how we implement the paper's two-stage protocol from one script.</div></div>
+
+<div class="qa"><div class="q">“How do you fit a batch of 64 on a 16 GB GPU?”</div>
+<div class="a">Gradient accumulation: 16 mini-batches of 4, summing gradients, then one optimizer step. Mathematically equal to a batch of 64.</div></div>
+
+<div class="qa"><div class="q">“What happens if a multi-day job is killed?”</div>
+<div class="a">Every epoch we save <code>last.pt</code> (weights + optimizer + epoch). With <code>--resume</code> the job reloads it and continues from the next epoch — no work lost.</div></div>
+
+<div class="qa"><div class="q">“What's the difference between the two checkpoint files?”</div>
+<div class="a"><code>karmadock_team002.pkl</code> = best weights only (the deliverable / for inference). <code>last.pt</code> = full snapshot for resuming. Both are written during training.</div></div>
+
+<div class="qa"><div class="q">“Why three pose files per complex and why sorted?”</div>
+<div class="a">KarmaDock docks 3 times from different random starts. We rank those repeats by MDN score and write best-first, because the evaluator scores the top pose.</div></div>
+
+<div class="qa"><div class="q">“How is this measured?”</div>
+<div class="a">RMSD between the predicted top pose and the crystal ligand; "success" = RMSD &lt; 2 Å. Reported as a success rate over the test set, compared to the paper's numbers.</div></div>
+
+<!-- ===================================================================== -->
+<h2 class="sec" id="refs">14. References &amp; links</h2>
+<ul>
+  <li><b>KarmaDock paper</b> — Zhang et al., <i>Nat. Comput. Sci.</i> 3, 789–804 (2023). <a href="https://doi.org/10.1038/s43588-023-00511-5" target="_blank">doi.org/10.1038/s43588-023-00511-5</a></li>
+  <li><b>KarmaDock code</b> — <a href="https://github.com/schrojunzhang/KarmaDock" target="_blank">github.com/schrojunzhang/KarmaDock</a></li>
+  <li><b>Background — equivariant GNNs (EGNN)</b> — Satorras, Hoogeboom &amp; Welling, <a href="https://arxiv.org/abs/2102.09844" target="_blank">arXiv:2102.09844</a></li>
+  <li><b>Background — Mixture Density Networks</b> — Bishop (1994), <a href="https://publications.aston.ac.uk/id/eprint/373/" target="_blank">original report</a></li>
+  <li><b>Our docs</b> — <code>DOCUMENTATION.md</code> (full design), <code>RUN_COMMANDS.md</code> (every command), <code>RUNBOOK.md</code> (cluster how-to), <code>RUN_JOURNAL.md</code> (the real dev log), <code>PROVENANCE.md</code> (what we wrote vs reused).</li>
+  <li><b>RDKit</b> (molecule handling) — <a href="https://www.rdkit.org/docs/" target="_blank">rdkit.org/docs</a> · <b>DGL</b> (graphs) — <a href="https://www.dgl.ai/" target="_blank">dgl.ai</a> · <b>HTCondor</b> — <a href="https://htcondor.org/" target="_blank">htcondor.org</a></li>
+</ul>
+
+<p class="foot">Built for the BDLDT seminar (team002 · KarmaDock). Theory quoted from the KarmaDock paper; code references point to <code>scripts/train.py</code> and the wrappers in <code>scripts/</code> + <code>condor/</code>. Open this file in any browser — it is fully self-contained and works offline.</p>
+
+</div></main>
+</div>
+
+<script>
+  // light/dark theme toggle (persisted in localStorage)
+  (function(){
+    const root=document.documentElement, btn=document.getElementById('themeToggle');
+    function apply(t){root.setAttribute('data-theme',t);btn.textContent=(t==='light'?'☀️':'🌙');}
+    apply(localStorage.getItem('kd-theme')||'dark');
+    btn.addEventListener('click',function(){
+      const next=root.getAttribute('data-theme')==='light'?'dark':'light';
+      localStorage.setItem('kd-theme',next);apply(next);
+    });
+  })();
+  // highlight the current section in the sidebar
+  const links = [...document.querySelectorAll('nav a')];
+  const map = {};
+  links.forEach(a => { const id = a.getAttribute('href').slice(1); map[id] = a; });
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = map[e.target.id];
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '0px 0px -75% 0px', threshold: 0 });
+  document.querySelectorAll('h2.sec[id]').forEach(h => obs.observe(h));
+</script>
+</body>
+</html>

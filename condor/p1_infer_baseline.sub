@@ -1,0 +1,25 @@
+# p1_infer_baseline.sub — GPU job: PIPELINE 1 (baseline).
+# Dock + score + FF/align-correct proto_test using the RELEASED pretrained checkpoint
+# (no training). Exports seminar predicted-pose SDFs to results/p1_baseline/proto_test.
+#   condor_submit p1_infer_baseline.sub
+
+universe      = docker
+docker_image  = ahlamloum/karmadock-seminar:v4
++WantGPUHomeMounted = true
+requirements = UidDomain == "cs.uni-saarland.de" && (Machine =!= "idun.hpc.uni-saarland.de")
+
+executable = /app/scripts/run_infer.sh
+# args: <test_csv> <graph_dir> <model_file> <kd_out_dir> <results_dir>
+arguments  = /home/bdldt_team002/run/data/proto/proto_test.csv /home/bdldt_team002/run/work/graphs/proto_test /app/KarmaDock/trained_models/karmadock_screening.pkl /home/bdldt_team002/run/work/kd_out/p1_baseline/proto_test /home/bdldt_team002/run/results/p1_baseline/proto_test
+
+should_transfer_files = NO
+
+output = /home/bdldt_team002/run/logs/p1_infer.$(ClusterId).$(ProcId).out
+error  = /home/bdldt_team002/run/logs/p1_infer.$(ClusterId).$(ProcId).err
+log    = /home/bdldt_team002/run/logs/p1_infer.$(ClusterId).log
+
+request_gpus   = 1
+request_cpus   = 8
+request_memory = 32GB
+
+queue 1
