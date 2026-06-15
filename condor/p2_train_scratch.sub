@@ -1,0 +1,32 @@
+# p2_train_scratch.sub — GPU job: PIPELINE 2 (from scratch, paper's 2-stage protocol).
+# run_train_paper.sh runs Stage 1 (scoring/MDN, pos_r=0) then Stage 2 (docking+scoring,
+# pos_r=1) initialised from Stage 1. Checkpoints every epoch + --resume, so this job is
+# safe on force-rescheduled nodes (a stage.done sentinel skips a finished Stage 1).
+#
+# args: <train_csv> <graph_dir> <complex_dir> <out_dir> [batch_size] [accum_steps]
+# Effective batch = batch_size*accum_steps (paper=64). Start conservative for a 16 GB
+# V100 (4*16=64); raise batch_size if `nvidia-smi` shows spare memory.
+#   condor_submit p2_train_scratch.sub
+
+universe      = docker
+docker_image  = ahlamloum/karmadock-seminar:v4
++WantGPUHomeMounted = true
+requirements = UidDomain == "cs.uni-saarland.de" && (Machine =!= "idun.hpc.uni-saarland.de")
+
+executable = /app/scripts/run_train_paper.sh
+arguments  = /home/bdldt_team002/run/data/proto/proto_train.csv /home/bdldt_team002/run/work/graphs/proto_train /home/bdldt_team002/run/work/complex/proto_train /home/bdldt_team002/run/work/ckpt/p2_scratch 4 16
+
+should_transfer_files = NO
+
+# To enable Weights & Biases (offline, no worker internet needed) uncomment:
+# environment = "WANDB_MODE=offline WANDB_API_KEY=dummy"
+
+output = /home/bdldt_team002/run/logs/p2_train.$(ClusterId).$(ProcId).out
+error  = /home/bdldt_team002/run/logs/p2_train.$(ClusterId).$(ProcId).err
+log    = /home/bdldt_team002/run/logs/p2_train.$(ClusterId).log
+
+request_gpus   = 1
+request_cpus   = 8
+request_memory = 48GB
+
+queue 1

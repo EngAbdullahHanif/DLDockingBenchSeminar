@@ -1,57 +1,52 @@
 #!/usr/bin/env python3
-import os
-import sys
+# -*- coding: utf-8 -*-
+"""
+convert_seminar_to_karmadock.py
+
+Seminar data layout -> KarmaDock layout.
+
+Seminar:  <src_dir>/<id>_ligand_refined.sdf , <src_dir>/<id>_protein_refined.pdb
+KarmaDock: <out_dir>/<id>/<id>_ligand.sdf , <out_dir>/<id>/<id>_protein.pdb
+
+The id is the ligand filename with '_ligand_refined.sdf' stripped, which is
+exactly what KarmaDock's pre_processing.py / generate_graph.py expect.
+"""
 import argparse
-import pandas as pd
+import os
 import shutil
+import sys
+
+import pandas as pd
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Convert seminar dataset format to KarmaDock expected structure.")
-    parser.add_argument("--csv", required=True, help="Path to the dataset CSV file (e.g. proto_test.csv)")
-    parser.add_argument("--src_dir", required=True, help="Directory containing the raw files (e.g. proto_test/)")
-    parser.add_argument("--out_dir", required=True, help="Output directory to create the KarmaDock structure")
-    args = parser.parse_args()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--csv", required=True, help="seminar CSV (e.g. proto_train.csv)")
+    ap.add_argument("--src_dir", required=True, help="dir with the refined .sdf/.pdb files")
+    ap.add_argument("--out_dir", required=True, help="output KarmaDock-layout dir")
+    args = ap.parse_args()
 
-    if not os.path.exists(args.csv):
-        print(f"Error: CSV file not found: {args.csv}")
-        sys.exit(1)
-    if not os.path.exists(args.src_dir):
-        print(f"Error: Source directory not found: {args.src_dir}")
-        sys.exit(1)
+    for path in (args.csv, args.src_dir):
+        if not os.path.exists(path):
+            sys.exit(f"ERROR: not found: {path}")
 
     os.makedirs(args.out_dir, exist_ok=True)
     df = pd.read_csv(args.csv)
-
-    print(f"Loaded CSV with {len(df)} entries.")
-    success_count = 0
-    missing_count = 0
-
-    for idx, row in df.iterrows():
-        lig_file = row['ligand_file_name']
-        prot_file = row['protein_file_name']
-        
-        # Derive complex ID (e.g., from 3ix2_AC2_A_302_ligand_refined.sdf -> 3ix2_AC2_A_302)
-        complex_id = lig_file.replace('_ligand_refined.sdf', '')
-        
-        # Paths
-        src_lig_path = os.path.join(args.src_dir, lig_file)
-        src_prot_path = os.path.join(args.src_dir, prot_file)
-        
-        dest_complex_dir = os.path.join(args.out_dir, complex_id)
-        dest_lig_path = os.path.join(dest_complex_dir, f"{complex_id}_ligand.sdf")
-        dest_prot_path = os.path.join(dest_complex_dir, f"{complex_id}_protein.pdb")
-
-        if not os.path.exists(src_lig_path) or not os.path.exists(src_prot_path):
-            print(f"Warning: Missing source files for {complex_id}. Ligand exists: {os.path.exists(src_lig_path)}, Protein exists: {os.path.exists(src_prot_path)}")
-            missing_count += 1
+    ok = miss = 0
+    for _, row in df.iterrows():
+        lig, prot = row["ligand_file_name"], row["protein_file_name"]
+        cid = lig.replace("_ligand_refined.sdf", "")
+        s_lig, s_prot = os.path.join(args.src_dir, lig), os.path.join(args.src_dir, prot)
+        if not (os.path.exists(s_lig) and os.path.exists(s_prot)):
+            miss += 1
             continue
+        d = os.path.join(args.out_dir, cid)
+        os.makedirs(d, exist_ok=True)
+        shutil.copy2(s_lig, os.path.join(d, f"{cid}_ligand.sdf"))
+        shutil.copy2(s_prot, os.path.join(d, f"{cid}_protein.pdb"))
+        ok += 1
+    print(f"converted {ok}/{len(df)} complexes ({miss} missing source files)")
 
-        os.makedirs(dest_complex_dir, exist_ok=True)
-        shutil.copy2(src_lig_path, dest_lig_path)
-        shutil.copy2(src_prot_path, dest_prot_path)
-        success_count += 1
-
-    print(f"Conversion complete. Successfully converted {success_count}/{len(df)} complexes. {missing_count} had missing source files.")
 
 if __name__ == "__main__":
     main()

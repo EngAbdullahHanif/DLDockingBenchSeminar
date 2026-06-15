@@ -1,0 +1,23 @@
+# preprocess_test.sub — CPU job: proto_test seminar data -> pockets -> .dgl graphs
+# Shared by ALL pipelines for inference (P1 baseline, P2, P3 all dock the same proto_test).
+#   condor_submit preprocess_test.sub
+
+universe      = docker
+docker_image  = ahlamloum/karmadock-seminar:v4
++WantGPUHomeMounted = true
+requirements = UidDomain == "cs.uni-saarland.de" && (Machine =!= "idun.hpc.uni-saarland.de")
+
+executable = /app/scripts/preprocess.sh
+# args: <csv> <refined_src_dir> <complex_out_dir> <graph_out_dir>
+arguments  = /home/bdldt_team002/run/data/proto/proto_test.csv /home/bdldt_team002/run/data/proto/proto_test /home/bdldt_team002/run/work/complex/proto_test /home/bdldt_team002/run/work/graphs/proto_test
+
+should_transfer_files = NO
+
+output = /home/bdldt_team002/run/logs/preprocess_test.$(ClusterId).$(ProcId).out
+error  = /home/bdldt_team002/run/logs/preprocess_test.$(ClusterId).$(ProcId).err
+log    = /home/bdldt_team002/run/logs/preprocess_test.$(ClusterId).log
+
+request_cpus   = 8
+request_memory = 16GB
+
+queue 1

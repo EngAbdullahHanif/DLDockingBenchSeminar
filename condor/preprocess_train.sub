@@ -1,0 +1,25 @@
+# preprocess_train.sub — CPU job: proto_train seminar data -> pockets -> .dgl graphs
+# Shared by ALL training pipelines (P2 from-scratch, P3 fine-tune): they all read the
+# same proto_train graphs. Code lives in the image; data/outputs live in shared /home
+# (NFS, mounted into the container via +WantGPUHomeMounted). No file transfer.
+#   condor_submit preprocess_train.sub
+
+universe      = docker
+docker_image  = ahlamloum/karmadock-seminar:v4
++WantGPUHomeMounted = true
+requirements = UidDomain == "cs.uni-saarland.de" && (Machine =!= "idun.hpc.uni-saarland.de")
+
+executable = /app/scripts/preprocess.sh
+# args: <csv> <refined_src_dir> <complex_out_dir> <graph_out_dir>
+arguments  = /home/bdldt_team002/run/data/proto/proto_train.csv /home/bdldt_team002/run/data/proto/proto_train /home/bdldt_team002/run/work/complex/proto_train /home/bdldt_team002/run/work/graphs/proto_train
+
+should_transfer_files = NO
+
+output = /home/bdldt_team002/run/logs/preprocess_train.$(ClusterId).$(ProcId).out
+error  = /home/bdldt_team002/run/logs/preprocess_train.$(ClusterId).$(ProcId).err
+log    = /home/bdldt_team002/run/logs/preprocess_train.$(ClusterId).log
+
+request_cpus   = 8
+request_memory = 16GB
+
+queue 1

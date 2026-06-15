@@ -1,0 +1,9 @@
+# Cluster artifact counts (generated under ~/run/work on the Saarland HPC)
+work/graphs/proto_train: 712 entries
+work/graphs/proto_test: 136 entries
+work/complex/proto_train: 712 entries
+work/complex/proto_test: 136 entries
+work/kd_out/p1_baseline/proto_test: 1227 files
+work/kd_out/p2_scratch/proto_test: 1227 files
+work/kd_out/p3_finetune/proto_test: 1227 files
+pockets proto_test: 136  proto_train: 712
