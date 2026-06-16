@@ -1,14 +1,8 @@
-# KarmaDock — BDLDT seminar · review copy [Abdullah]
+# KarmaDock — BDLDT Seminar (Phase 2 Prototype)
 
-### This is not a final submission repo. It's for review only. 
-Hey Abdullah — this is new try for KarmaDock prototype work, shared so you can **understand what we
-did, review it, and send back comments** before we finalize the 19 Jun submission. Read this
-page, skim the code/notebook, and reply to the **"What I need from you"** section at the bottom.
+This repository contains the Phase 2 prototype implementation and benchmarking results for **KarmaDock**, as part of the *"Benchmarking DL-based Docking Tools"* seminar at Saarland University.
 
-**Please try to read this document - Don't skip** 
-
-> (code line-by-line + theory, with a dark/light toggle): open
-> **`KARMADOCK_EXPLAINED.html`** in any browser.
+> **Note on code walkthrough & theory:** Open **`KARMADOCK_EXPLAINED.html`** in a browser to see a detailed line-by-line code and theory guide.
 
 ---
 
@@ -40,20 +34,20 @@ orchestration on the SIC cluster. We call the upstream model/preprocessing/docki
 | **P2 from-scratch** | paper's 2-stage protocol, trained on proto_train | `p2_scratch_*.pkl` |
 | **P3 fine-tune** | released weights fine-tuned on proto_train | `p3_finetune_*.pkl` |
 
-**Result** (success@2Å, best-of-3, on the 75 available proto_test complexes — from
-`notebooks/results_and_comparison.ipynb`):
+**Result** — official evaluator (`evaluation/evaluation.py`, symmetry-corrected RMSD, **top-1**, on the **corrected 136-complex** proto_test; from `notebooks/results_and_comparison.ipynb`). _Updated 2026-06-16._
 
-| pipeline | uncorrected | FF | align |
-|---|---|---|---|
-| P1 baseline | **56.0%** | 34.7% | 10.7% |
-| P3 fine-tune | **29.3%** | 26.7% | 16.0% |
-| P2 from-scratch | **4.0%** | 4.0% | 4.0% |
+| pipeline | uncorrected (headline) | FF-corrected | <1 Å | median RMSD |
+|---|---|---|---|---|
+| **P1 baseline** (released weights) | **81.6%** | 79.4% | 8.1% | 1.45 Å |
+| **P3 fine-tune** (released → trained on 712) | **80.9%** | - | 7.4% | 1.49 Å |
+| **P2 from-scratch** (random → trained on 712) | **11.8%** | 9.6% | 3.7% | 3.00 Å |
 
-**PoseBusters PB-Valid** (notebook §3e): P1 13.3% / P3 6.7% / P2 0%.
+> **`align_corrected` is excluded.** On this redocking set the align step reconstructs the crystal
+> (reference) pose instead of following the model's prediction — a leak: even the weak P2 "scores"
+> ~94%. Report **uncorrected**; **FF** is the paper's "most plausible" pose. **PoseBusters is deferred**
+> to the next submission (per tutor).
 
-**Headline finding (honest):** on this tiny prototype set, retraining *hurts* vs the released
-baseline — small-data overfit/forgetting. The pipeline works end-to-end; matching the paper
-needs the full dataset. This is the expected prototype outcome, not a bug.
+**Headline finding:** the released model (P1) docks this fragment-heavy set well (81.6%). The from-scratch P2 model trained on only ~700 complexes achieves 11.8% success, showing the pipeline works end-to-end but requires the full dataset to generalize. The restored P3 fine-tune pipeline achieves a strong **80.9%** success, showing that fine-tuning on `proto_train` is stable and successfully preserves baseline generalization without catastrophic forgetting.
 
 ## 5. Repo layout
 ```
@@ -62,7 +56,7 @@ condor/       HTCondor submit files (preprocess, p1/p2/p3)
 docs/         DOCUMENTATION.md, RUNBOOK.md, RUN_COMMANDS.md
 notebooks/    results_and_comparison.ipynb  (tables, ECDF, PoseBusters, pose views)
 eda/          data_exploration.ipynb + figures
-results/      predicted poses, 75 per pipeline (uncorrected + FF), best-pose-first
+results/      predicted poses, 136 per pipeline (uncorrected + FF), best-pose-first
 data/         proto_train.csv / proto_test.csv  (the 80 MB zip is NOT shipped here)
 cluster_artifacts/  file-name manifests of the cluster run (graphs 712+75, kd_out 678/pipe)
 Dockerfile    image recipe (prototype image = ahlamloum/karmadock-seminar:v4)
@@ -75,7 +69,7 @@ ISSUES.md     short list of the bugs/issues we hit and fixed
 version). No secrets, no W&B key — W&B is read from an env var only.
 
 ## 6. Where to look (priority order)
-1. `PROVENANCE.md` — what's ours vs upstream. **Confirm you're happy defending this split.**
+1. `PROVENANCE.md` — what's ours vs upstream.
 2. `scripts/train.py` — our main artifact. The part most worth your scrutiny **[IMPORTANT]**.
 3. `notebooks/results_and_comparison.ipynb` — all numbers in §4 come from here.
 4. `docs/RUNBOOK.md` — the exact cluster run steps - _not updated_.
@@ -114,20 +108,4 @@ models the honest external test is **BDB2020+** (BindingDB, post-2020 → unseen
 Code for these lives in the main working repo (not here): `scripts/lp_to_seminar.py`,
 `scripts/run_train_lp_scratch.sh`, `scripts/bdb_to_seminar.py`, and the `condor/p4_*` / `p5_*` subs.
 
----
 
-## What I need from you (Abdullah)
-
-### A. Sanity-check these 
-- **train.py 2-stage logic** — Stage 1 scoring (`pos_r 0`) → Stage 2 docking (`pos_r 1`),
-  seed 42, effective batch 64 via grad-accumulation. Does it match the paper's protocol [method section]?
-- **P3 number** — journal/early notes say "~24%", finalized notebook says **29.3%**. Confirm
-  29.3% is what we report everywhere _[ confirm the results is consistens - mostly ai hardcoded information mistakes ]_.
-- **Data gap** — `proto_test.csv` lists 118 complexes but only **75** have structures; we
-  benchmark on 75 and raise the missing 43 at office hours. OK to state it that way or should we the unlisted 61 complex to the csv file and run the   test again?
-- **Docs** — `PROVENANCE.md`/`REVIEW_NOTES.md` mention `papers/KarmaDock_paper.md` - how do you recommend to document our work?.
-
-### B. Open decisions — need your call
-1. Anything **missing** for the 19 Jun deliverable (code / checkpoint / notebook / poses ZIP / Docker name / condor files)?
-
-Send me your comments on A + B and I'll fold them in, then we finalize together before the deadline. Thanks!
