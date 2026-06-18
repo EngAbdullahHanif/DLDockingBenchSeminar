@@ -89,7 +89,7 @@ test 2,171 (after RDKit drops ~14% on the as-given ligand SDFs: 6,377 / 1,552 / 
 | pipeline | what it is |
 |---|---|
 | **P4 — LP fine-tune** | released weights fine-tuned on LP CL1 train (1 GPU) |
-| **P5 — LP from-scratch** | 2-stage from scratch on LP CL1 train (DDP multi-GPU; pivoted to single-GPU on the cluster) **running now** :(> ~2 days) |
+| **P5 — LP from-scratch** | 2-stage from scratch on LP CL1 train (completed) |
 
 **Why they exist (data leakage):** `lp_test` is all PDBBind v2020 — exactly what the *released*
 weights were trained on. So for any released-weights model (P1, **P4**), `lp_test` is **leaked**:
@@ -97,13 +97,14 @@ P4 scores 94.5% success@2Å there, which is memorization, **not** generalization
 valid leak-proof test **only for P5** (trained from scratch, never saw it). For released-weights
 models the honest external test is **BDB2020+** (BindingDB, post-2020 → unseen).
 
-**What we found so far** (numbers from `RUN_JOURNAL.md`, not yet in the shipped notebook):
+**What we found & finalized:**
+- **P5 from-scratch results:** P5 converged on the training set (Train RMSD **3.05 Å**, Train Loss **4.24**), but suffered severe overfitting on the unseen validation split with a final Val RMSD of **7.48 Å** (Val Loss **8.76**). This highlights the limits of training a high-capacity GNN docking model on small datasets (~6.4k complexes) from scratch.
+- **P4 Fine-tune & Leakage confirmation:** P4 showed a stable validation RMSD (**2.76 Å**) from epoch 0. However, this is due to pre-training leakage, as the released baseline weights (P1) were trained on the entire PDBBind v2020 dataset, which includes the LP validation complexes.
 - **Honest external (BDB2020+):** P1 44.4% vs **P4 40.0%** success@2Å — fine-tuning did **not**
   help; P4's best checkpoint ≈ the released weights.
 - **On the tutor's proto_test:** **P4 54.7%** vs P1 56.0 / P3 29.3 / P2 4.0. Key result —
   fine-tuning on the larger/cleaner LP CL1 (~6.4k) *preserves* the baseline, whereas the tiny
   proto fine-tune (P3) *degraded* it ⇒ P3's drop was a **small-data artifact**, not a method flaw.
-- **P5** (the one genuinely-valid leak-proof number) is **still training** — no final figure yet.
 
 Code for these lives in the main working repo (not here): `scripts/lp_to_seminar.py`,
 `scripts/run_train_lp_scratch.sh`, `scripts/bdb_to_seminar.py`, and the `condor/p4_*` / `p5_*` subs.
