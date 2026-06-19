@@ -364,9 +364,9 @@ def main():
                 continue
             data = data.to(device)
             if args.jitter > 0.0:
-                pos = data.ndata['pos']
+                pos = data['ligand'].pos
                 noise = torch.randn_like(pos) * args.jitter
-                data.ndata['pos'] = pos + noise
+                data['ligand'].pos = pos + noise
             rmsd_loss, mdn_loss = model(data, device, args.pos_r)
             if mdn_loss is None:
                 continue
