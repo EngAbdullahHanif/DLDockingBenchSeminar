@@ -121,6 +121,8 @@ def parse_args():
     p.add_argument("--num_workers", type=int, default=4)
     p.add_argument("--random_seed", type=int, default=2023)
     p.add_argument("--grad_clip", type=float, default=10.0)
+    p.add_argument("--jitter", type=float, default=0.0,
+                   help="Scale of coordinate jittering (std in Å) for training augmentation.")
     # Weights & Biases (optional). Key comes from the WANDB_API_KEY env var, never a flag.
     p.add_argument("--wandb", action="store_true", help="log metrics to W&B")
     p.add_argument("--wandb_project", default="karmadock-seminar")
@@ -361,6 +363,10 @@ def main():
             if data is None:
                 continue
             data = data.to(device)
+            if args.jitter > 0.0:
+                pos = data.ndata['pos']
+                noise = torch.randn_like(pos) * args.jitter
+                data.ndata['pos'] = pos + noise
             rmsd_loss, mdn_loss = model(data, device, args.pos_r)
             if mdn_loss is None:
                 continue

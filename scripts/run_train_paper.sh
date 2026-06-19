@@ -46,9 +46,9 @@ fi
 # ---- Stage 2: docking + scoring, initialised from Stage 1 best ----
 python3 -u /app/scripts/train.py \
     --csv "$CSV" --graph_dir "$GRAPH" --complex_dir "$COMPLEX" --out_dir "$S2" \
-    --init_model "$S1/karmadock_team002.pkl" --pos_r 1 --lr 1e-4 --weight_decay 0 \
-    --batch_size "$BS" --accum_steps "$ACC" --patience 70 --epochs 1000 \
-    --val_frac 0.1 --random_seed 42 --resume \
+    --init_model "$S1/karmadock_team002.pkl" --pos_r 1 --lr 1e-4 --weight_decay 1e-4 \
+    --batch_size "$BS" --accum_steps "$ACC" --patience 20 --epochs 1000 \
+    --val_frac 0.1 --random_seed 42 --resume --jitter 0.05 \
     $WB ${WB:+--wandb_run_name p2_stage2_docking}
 
 echo "=== P2 (from-scratch) done. final checkpoint: $S2/karmadock_team002.pkl ==="
