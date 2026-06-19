@@ -29,7 +29,7 @@ VALARG=""; if [ -n "$VAL" ]; then VALARG="--val_csv $VAL"; fi
 if [ -n "$VALGRAPH" ]; then VALARG="$VALARG --val_graph_dir $VALGRAPH"; fi
 RUN_NAME="p3_finetune"; if [ -n "$VAL" ]; then RUN_NAME="p4_lp_finetune"; fi
 
-python3 -u /app/scripts/train.py \
+python3 -u /home/bdldt_team002/run/code/scripts/train.py \
     --csv "$CSV" --graph_dir "$GRAPH" --complex_dir "$COMPLEX" --out_dir "$OUT" \
     --init_model /app/KarmaDock/trained_models/karmadock_screening.pkl \
     --pos_r 1 --lr 1e-4 --weight_decay 0 \

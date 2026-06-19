@@ -6,11 +6,11 @@
 #   condor_submit p3_finetune.sub
 
 universe      = docker
-docker_image  = ahlamloum/karmadock-seminar:v7
+docker_image  = ahlamloum/karmadock-seminar:v6
 +WantGPUHomeMounted = true
 requirements = UidDomain == "cs.uni-saarland.de" && (Machine =!= "idun.hpc.uni-saarland.de")
 
-executable = /app/scripts/run_finetune.sh
+executable = /home/bdldt_team002/run/code/scripts/run_finetune.sh
 arguments  = /home/bdldt_team002/run/data/proto/proto_train.csv /home/bdldt_team002/run/work/graphs/proto_train /home/bdldt_team002/run/work/complex/proto_train /home/bdldt_team002/run/work/ckpt/p3_finetune 4 16
 
 should_transfer_files = NO

@@ -4,11 +4,11 @@
 #   condor_submit p1_infer_baseline.sub
 
 universe      = docker
-docker_image  = ahlamloum/karmadock-seminar:v7
+docker_image  = ahlamloum/karmadock-seminar:v6
 +WantGPUHomeMounted = true
 requirements = UidDomain == "cs.uni-saarland.de" && (Machine =!= "idun.hpc.uni-saarland.de")
 
-executable = /app/scripts/run_infer.sh
+executable = /home/bdldt_team002/run/code/scripts/run_infer.sh
 # args: <test_csv> <graph_dir> <model_file> <kd_out_dir> <results_dir>
 arguments  = /home/bdldt_team002/run/data/proto/proto_test.csv /home/bdldt_team002/run/work/graphs/proto_test /app/KarmaDock/trained_models/karmadock_screening.pkl /home/bdldt_team002/run/work/kd_out/p1_baseline/proto_test /home/bdldt_team002/run/results/p1_baseline/proto_test
 

@@ -34,7 +34,7 @@ if [ -n "${WANDB_API_KEY:-}" ]; then WB="--wandb --wandb_project karmadock-semin
 
 # ---- Stage 1: scoring / MDN (EGNN docking skipped via pos_r 0) ----
 if [ ! -f "$S1/stage.done" ]; then
-  python3 -u /app/scripts/train.py \
+  python3 -u /home/bdldt_team002/run/code/scripts/train.py \
       --csv "$CSV" --graph_dir "$GRAPH" --complex_dir "$COMPLEX" --out_dir "$S1" \
       --init_model "" --pos_r 0 --lr 1e-3 --weight_decay 1e-5 \
       --batch_size "$BS" --accum_steps "$ACC" --patience 70 --epochs 1000 \
@@ -44,7 +44,7 @@ if [ ! -f "$S1/stage.done" ]; then
 fi
 
 # ---- Stage 2: docking + scoring, initialised from Stage 1 best ----
-python3 -u /app/scripts/train.py \
+python3 -u /home/bdldt_team002/run/code/scripts/train.py \
     --csv "$CSV" --graph_dir "$GRAPH" --complex_dir "$COMPLEX" --out_dir "$S2" \
     --init_model "$S1/karmadock_team002.pkl" --pos_r 1 --lr 1e-4 --weight_decay 1e-4 \
     --batch_size "$BS" --accum_steps "$ACC" --patience 20 --epochs 1000 \

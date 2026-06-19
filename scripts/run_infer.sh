@@ -21,7 +21,7 @@ python3 -u ligand_docking.py \
     --random_seed 2023
 
 # 2) export to seminar predicted-pose layout (best pose first)
-python3 /app/scripts/convert_karmadock_to_seminar.py \
+python3 /home/bdldt_team002/run/code/scripts/convert_karmadock_to_seminar.py \
     --input_dir "$KDOUT" \
     --csv "$CSV" \
     --out_dir "$RESULTS" \
