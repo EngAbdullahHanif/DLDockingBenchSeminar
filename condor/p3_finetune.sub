@@ -6,7 +6,7 @@
 #   condor_submit p3_finetune.sub
 
 universe      = docker
-docker_image  = ahlamloum/karmadock-seminar:v4
+docker_image  = ahlamloum/karmadock-seminar:v7
 +WantGPUHomeMounted = true
 requirements = UidDomain == "cs.uni-saarland.de" && (Machine =!= "idun.hpc.uni-saarland.de")
 
